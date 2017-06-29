@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 )
 
 // Comic strip representation
@@ -23,7 +24,10 @@ type Comic struct {
 }
 
 // ApiURL is URL of XKCD api
-const ApiURL = "https://xkcd.com/info.0.json"
+const (
+	IndexDir = "index"
+	ApiURL   = "https://xkcd.com/info.0.json"
+)
 
 // GetAll gets XKCD comics
 func GetAll() {
@@ -50,8 +54,9 @@ func GetAll() {
 
 // GetComic returns single comic
 func GetComic(id int) *Comic {
-	name := fmt.Sprintf("xkcd-%d.json", id)
+	name := path.Join(IndexDir, fmt.Sprintf("xkcd-%d.json", id))
 	if _, err := os.Stat(name); os.IsNotExist(err) {
+		initIndex()
 		indexComic(id, name)
 	}
 
@@ -78,6 +83,15 @@ func indexComic(id int, name string) {
 	io.Copy(file, resp.Body)
 	resp.Body.Close()
 	file.Close()
+}
+
+func initIndex() {
+	if _, err := os.Stat(IndexDir); os.IsNotExist(err) {
+		err = os.Mkdir(IndexDir, os.ModePerm)
+		if err != nil {
+			log.Fatalf("Error creating index directory: %s", err)
+		}
+	}
 }
 
 func loadFromIndex(name string) *Comic {
