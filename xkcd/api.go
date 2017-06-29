@@ -26,7 +26,7 @@ type Comic struct {
 // ApiURL is URL of XKCD api
 const (
 	IndexDir = "index"
-	ApiURL   = "https://xkcd.com/info.0.json"
+	ApiURL   = "https://xkcd.com"
 )
 
 // GetAll gets XKCD comics
@@ -69,7 +69,7 @@ func indexComic(id int, name string) {
 		log.Fatalf("Error creating index file: %s", err)
 	}
 
-	resp, err := http.Get(ApiURL)
+	resp, err := http.Get(fmt.Sprintf("%s/%d/info.0.json", ApiURL, id))
 	if err != nil {
 		resp.Body.Close()
 		log.Fatalf("Error fetching the comic: %s", err)
